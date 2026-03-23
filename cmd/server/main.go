@@ -31,24 +31,24 @@ func main() {
 	db := database.Connect(cfg.DatabaseURL)
 
 	// Repositories
-	profileRepo     := repository.NewProfileRepository(db)
-	productRepo     := repository.NewProductRepository(db)
-	sectionRepo     := repository.NewSectionRepository(db)
-	fabricRepo      := repository.NewFabricPriceRepository(db)
-	quoteRepo       := repository.NewQuoteRepository(db)
+	profileRepo := repository.NewProfileRepository(db)
+	productRepo := repository.NewProductRepository(db)
+	sectionRepo := repository.NewSectionRepository(db)
+	fabricRepo := repository.NewFabricPriceRepository(db)
+	quoteRepo := repository.NewQuoteRepository(db)
 	extraChargeRepo := repository.NewExtraChargeRepository(db)
 
 	// Services
-	pricingSvc      := services.NewPricingService(fabricRepo)
+	pricingSvc := services.NewPricingService(fabricRepo)
 	configuratorSvc := services.NewConfiguratorService(sectionRepo, pricingSvc)
 
 	// Handlers
-	profileHandler     := handlers.NewProfileHandler(profileRepo)
-	productHandler     := handlers.NewProductHandler(productRepo)
-	sectionHandler     := handlers.NewSectionHandler(sectionRepo)
-	fabricHandler      := handlers.NewFabricHandler(fabricRepo, pricingSvc)
+	profileHandler := handlers.NewProfileHandler(profileRepo)
+	productHandler := handlers.NewProductHandler(productRepo)
+	sectionHandler := handlers.NewSectionHandler(sectionRepo)
+	fabricHandler := handlers.NewFabricHandler(fabricRepo, pricingSvc)
 	configuratorHandler := handlers.NewConfiguratorHandler(configuratorSvc)
-	quoteHandler       := handlers.NewQuoteHandler(quoteRepo, configuratorSvc)
+	quoteHandler := handlers.NewQuoteHandler(quoteRepo, configuratorSvc)
 	extraChargeHandler := handlers.NewExtraChargeHandler(extraChargeRepo)
 
 	r := chi.NewRouter()
@@ -58,7 +58,7 @@ func main() {
 	r.Use(chimw.Recoverer)
 	r.Use(chimw.RealIP)
 	r.Use(cors.Handler(cors.Options{
-		AllowedOrigins:   []string{"http://localhost:5173", "http://localhost:3000"},
+		AllowedOrigins:   []string{"https://briers-frontend.vercel.app", "http://localhost:5173", "http://localhost:3000"},
 		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
 		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type"},
 		AllowCredentials: true,
