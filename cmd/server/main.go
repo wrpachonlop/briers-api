@@ -58,7 +58,11 @@ func main() {
 	r.Use(chimw.Recoverer)
 	r.Use(chimw.RealIP)
 	r.Use(cors.Handler(cors.Options{
-		AllowedOrigins:   []string{"https://briers-frontend.vercel.app/", "http://localhost:5173", "http://localhost:3000"},
+		AllowedOrigins: []string{
+			"https://briers-frontend*.vercel.app",
+			"http://localhost:5173",
+			"http://localhost:3000",
+		},
 		AllowedMethods:   []string{"GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"},
 		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token", "X-Requested-With"},
 		AllowCredentials: true,
