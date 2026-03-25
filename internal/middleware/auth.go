@@ -2,6 +2,7 @@ package middleware
 
 import (
 	"context"
+	"crypto/ecdsa"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -20,7 +21,7 @@ type SupabaseClaims struct {
 	jwt.RegisteredClaims
 }
 
-func ValidateJWT(jwtSecret string) func(http.Handler) http.Handler {
+func ValidateJWT(publicKey *ecdsa.PublicKey) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			authHeader := r.Header.Get("Authorization")
@@ -33,13 +34,14 @@ func ValidateJWT(jwtSecret string) func(http.Handler) http.Handler {
 			claims := &SupabaseClaims{}
 
 			token, err := jwt.ParseWithClaims(tokenStr, claims, func(t *jwt.Token) (interface{}, error) {
-				if _, ok := t.Method.(*jwt.SigningMethodHMAC); !ok {
+				if _, ok := t.Method.(*jwt.SigningMethodECDSA); !ok {
 					return nil, fmt.Errorf("unexpected signing method: %v", t.Header["alg"])
 				}
-				return []byte(jwtSecret), nil
+				return publicKey, nil
 			})
 
 			if err != nil || !token.Valid {
+				fmt.Printf("JWT Auth Error: %v\n", err)
 				writeError(w, http.StatusUnauthorized, "invalid or expired token")
 				return
 			}

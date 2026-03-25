@@ -24,8 +24,8 @@ func main() {
 	if cfg.DatabaseURL == "" {
 		log.Fatal("DATABASE_URL is required")
 	}
-	if cfg.SupabaseJWTSecret == "" {
-		log.Fatal("SUPABASE_JWT_SECRET is required")
+	if cfg.SupabasePublicKey == nil {
+		log.Fatal("Supabase Public Key (ECC) is required for JWT validation")
 	}
 
 	db := database.Connect(cfg.DatabaseURL)
@@ -76,7 +76,7 @@ func main() {
 
 	// All API routes require JWT
 	r.Group(func(r chi.Router) {
-		r.Use(middleware.ValidateJWT(cfg.SupabaseJWTSecret))
+		r.Use(middleware.ValidateJWT(cfg.SupabasePublicKey))
 
 		// ── Profile ───────────────────────────────────────────
 		r.Get("/api/v1/me", profileHandler.Me)
