@@ -86,7 +86,7 @@ func (s *ConfiguratorService) Calculate(ctx context.Context, req dto.Configurato
 		totalFabric += section.FabricYards * float64(ps.Quantity)
 	}
 
-	price := (totalSupplierCost * 2) + 200
+	finalPrice := (totalSupplierCost * 2) + 200
 
 	var extraTotal float64
 	for _, ec := range req.ExtraCharges {
@@ -98,11 +98,11 @@ func (s *ConfiguratorService) Calculate(ctx context.Context, req dto.Configurato
 		TotalDepthCm:     totalDepth,
 		TotalFabricYards: totalFabric,
 		FabricGrade:      req.FabricGrade,
-		SupplierCost:     price.SupplierCost,
-		FinalPrice:       price.FinalPrice,
+		SupplierCost:     totalSupplierCost,
+		FinalPrice:       finalPrice,
 		ExtraCharges:     req.ExtraCharges,
 		ExtraTotal:       extraTotal,
-		GrandTotal:       price.FinalPrice + extraTotal,
+		GrandTotal:       finalPrice + extraTotal,
 	}, nil
 }
 
