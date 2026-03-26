@@ -51,17 +51,33 @@ func NewConfiguratorService(sr *repository.SectionRepository, ps *PricingService
 }
 
 func (s *ConfiguratorService) Calculate(ctx context.Context, req dto.ConfiguratorRequest) (*dto.ConfigResult, error) {
+
 	if err := validator.ValidateFabricGrade(req.FabricGrade); err != nil {
 		return nil, err
 	}
 
-	var totalWidth, totalDepth, totalFabric float64
+	var totalWidth, totalDepth, totalFabric, totalSupplierCost float64
 
 	for _, ps := range req.PlacedSections {
 		section, err := s.sectionRepo.FindByID(ctx, ps.SectionID)
 		if err != nil {
 			return nil, fmt.Errorf("section %s not found", ps.SectionID)
 		}
+		var priceForGrade float64
+		found := false
+		for _, p := range section.Prices {
+			if p.Grade == req.FabricGrade {
+				priceForGrade = p.Price
+				found = true
+				break
+			}
+		}
+		if !found {
+			return nil, fmt.Errorf("no price found for grade %d in section %s", req.FabricGrade, ps.SectionID)
+		}
+
+		totalSupplierCost += priceForGrade * float64(ps.Quantity)
+
 		w, d := effectiveDimensions(section.WidthCm, section.DepthCm, ps.Rotation)
 		totalWidth += w * float64(ps.Quantity)
 		if d > totalDepth {
@@ -70,10 +86,7 @@ func (s *ConfiguratorService) Calculate(ctx context.Context, req dto.Configurato
 		totalFabric += section.FabricYards * float64(ps.Quantity)
 	}
 
-	price, err := s.pricingSvc.GetPriceForGrade(ctx, req.ProductID, req.FabricGrade)
-	if err != nil {
-		return nil, err
-	}
+	price := (totalSupplierCost * 2) + 200
 
 	var extraTotal float64
 	for _, ec := range req.ExtraCharges {

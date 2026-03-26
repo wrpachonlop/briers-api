@@ -92,7 +92,8 @@ func (r *SectionRepository) FindByProductID(ctx context.Context, productID strin
 
 func (r *SectionRepository) FindByID(ctx context.Context, id string) (*models.Section, error) {
 	var s models.Section
-	return &s, r.db.WithContext(ctx).First(&s, "id = ?", id).Error
+	err := r.db.WithContext(ctx).Preload("Prices").First(&s, "id = ?", id).Error
+	return &s, err
 }
 
 func (r *SectionRepository) Create(ctx context.Context, s *models.Section) error {
