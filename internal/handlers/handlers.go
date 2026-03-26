@@ -5,14 +5,15 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/go-chi/chi/v5"
-	"github.com/google/uuid"
 	"briers-api/internal/dto"
 	"briers-api/internal/middleware"
 	"briers-api/internal/models"
 	"briers-api/internal/repository"
 	"briers-api/internal/services"
 	"briers-api/pkg/validator"
+
+	"github.com/go-chi/chi/v5"
+	"github.com/google/uuid"
 )
 
 func respond(w http.ResponseWriter, status int, data interface{}) {
@@ -162,6 +163,13 @@ func (h *SectionHandler) Create(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	var sectionPrices []models.SectionPrice
+	for _, p := range req.Prices {
+		sectionPrices = append(sectionPrices, models.SectionPrice{
+			Grade: p.Grade,
+			Price: p.Price,
+		})
+	}
 	section := &models.Section{
 		ProductID:   pid,
 		Name:        req.Name,
@@ -171,6 +179,7 @@ func (h *SectionHandler) Create(w http.ResponseWriter, r *http.Request) {
 		FabricYards: req.FabricYards,
 		ImageURL:    req.ImageURL,
 		SortOrder:   req.SortOrder,
+		Prices:      sectionPrices,
 	}
 
 	if err := h.repo.Create(r.Context(), section); err != nil {
@@ -182,6 +191,7 @@ func (h *SectionHandler) Create(w http.ResponseWriter, r *http.Request) {
 
 func (h *SectionHandler) Update(w http.ResponseWriter, r *http.Request) {
 	id := chi.URLParam(r, "id")
+
 	section, err := h.repo.FindByID(r.Context(), id)
 	if err != nil {
 		respondError(w, http.StatusNotFound, "section not found")
@@ -191,6 +201,10 @@ func (h *SectionHandler) Update(w http.ResponseWriter, r *http.Request) {
 	if err := json.NewDecoder(r.Body).Decode(section); err != nil {
 		respondError(w, http.StatusBadRequest, "invalid request body")
 		return
+	}
+
+	for i := range section.Prices {
+		section.Prices[i].SectionID = section.ID
 	}
 
 	if err := h.repo.Update(r.Context(), section); err != nil {
@@ -290,7 +304,7 @@ func (h *ConfiguratorHandler) Calculate(w http.ResponseWriter, r *http.Request) 
 // ─── Quote Handler ────────────────────────────────────────────────────────────
 
 type QuoteHandler struct {
-	repo           *repository.QuoteRepository
+	repo            *repository.QuoteRepository
 	configuratorSvc *services.ConfiguratorService
 }
 

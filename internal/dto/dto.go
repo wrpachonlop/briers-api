@@ -22,14 +22,19 @@ type UpdateProductRequest struct {
 
 // ─── Section DTOs ─────────────────────────────────────────────────────────────
 
+type SectionPriceRequest struct {
+	Grade int     `json:"grade"`
+	Price float64 `json:"price"`
+}
 type CreateSectionRequest struct {
-	Name        string  `json:"name"         validate:"required"`
-	WidthCm     float64 `json:"width_cm"     validate:"required,gt=0"`
-	HeightCm    float64 `json:"height_cm"    validate:"required,gt=0"`
-	DepthCm     float64 `json:"depth_cm"     validate:"required,gt=0"`
-	FabricYards float64 `json:"fabric_yards" validate:"required,gt=0"`
-	ImageURL    string  `json:"image_url"    validate:"required"`
-	SortOrder   int     `json:"sort_order"`
+	Name        string                `json:"name"         validate:"required"`
+	WidthCm     float64               `json:"width_cm"     validate:"required,gt=0"`
+	HeightCm    float64               `json:"height_cm"    validate:"required,gt=0"`
+	DepthCm     float64               `json:"depth_cm"     validate:"required,gt=0"`
+	FabricYards float64               `json:"fabric_yards" validate:"required,gt=0"`
+	ImageURL    string                `json:"image_url"    validate:"required"`
+	SortOrder   int                   `json:"sort_order"`
+	Prices      []SectionPriceRequest `json:"prices"`
 }
 
 // ─── Fabric Price DTOs ────────────────────────────────────────────────────────
@@ -46,9 +51,9 @@ type FabricPriceEntry struct {
 // ─── Configurator DTOs ────────────────────────────────────────────────────────
 
 type ConfiguratorRequest struct {
-	ProductID      string           `json:"product_id"      validate:"required"`
-	FabricGrade    int              `json:"fabric_grade"    validate:"required"`
-	PlacedSections []PlacedSection  `json:"placed_sections" validate:"required,min=1"`
+	ProductID      string            `json:"product_id"      validate:"required"`
+	FabricGrade    int               `json:"fabric_grade"    validate:"required"`
+	PlacedSections []PlacedSection   `json:"placed_sections" validate:"required,min=1"`
 	ExtraCharges   []ExtraChargeLine `json:"extra_charges"`
 }
 
@@ -70,12 +75,12 @@ type ExtraChargeLine struct {
 // ─── Quote DTOs ───────────────────────────────────────────────────────────────
 
 type CreateQuoteRequest struct {
-	ProductID      string           `json:"product_id"      validate:"required"`
-	CustomerName   string           `json:"customer_name"`
-	FabricGrade    int              `json:"fabric_grade"    validate:"required"`
-	PlacedSections []PlacedSection  `json:"placed_sections" validate:"required,min=1"`
+	ProductID      string            `json:"product_id"      validate:"required"`
+	CustomerName   string            `json:"customer_name"`
+	FabricGrade    int               `json:"fabric_grade"    validate:"required"`
+	PlacedSections []PlacedSection   `json:"placed_sections" validate:"required,min=1"`
 	ExtraCharges   []ExtraChargeLine `json:"extra_charges"`
-	Notes          string           `json:"notes"`
+	Notes          string            `json:"notes"`
 }
 
 type UpdateQuoteStatusRequest struct {
@@ -85,15 +90,15 @@ type UpdateQuoteStatusRequest struct {
 // ─── Responses ───────────────────────────────────────────────────────────────
 
 type ConfigResult struct {
-	TotalWidthCm     float64          `json:"total_width_cm"`
-	TotalDepthCm     float64          `json:"total_depth_cm"`
-	TotalFabricYards float64          `json:"total_fabric_yards"`
-	FabricGrade      int              `json:"fabric_grade"`
-	SupplierCost     float64          `json:"supplier_cost"`
-	FinalPrice       float64          `json:"final_price"`
+	TotalWidthCm     float64           `json:"total_width_cm"`
+	TotalDepthCm     float64           `json:"total_depth_cm"`
+	TotalFabricYards float64           `json:"total_fabric_yards"`
+	FabricGrade      int               `json:"fabric_grade"`
+	SupplierCost     float64           `json:"supplier_cost"`
+	FinalPrice       float64           `json:"final_price"`
 	ExtraCharges     []ExtraChargeLine `json:"extra_charges"`
-	ExtraTotal       float64          `json:"extra_total"`
-	GrandTotal       float64          `json:"grand_total"`
+	ExtraTotal       float64           `json:"extra_total"`
+	GrandTotal       float64           `json:"grand_total"`
 }
 
 type PriceResult struct {

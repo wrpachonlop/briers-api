@@ -5,9 +5,10 @@ import (
 	"fmt"
 	"strings"
 
+	"briers-api/internal/models"
+
 	"github.com/google/uuid"
 	"gorm.io/gorm"
-	"briers-api/internal/models"
 )
 
 // ─── Profile Repository ───────────────────────────────────────────────────────
@@ -99,7 +100,13 @@ func (r *SectionRepository) Create(ctx context.Context, s *models.Section) error
 }
 
 func (r *SectionRepository) Update(ctx context.Context, s *models.Section) error {
-	return r.db.WithContext(ctx).Save(s).Error
+	return r.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+		err := tx.Where("section_id = ?", s.ID).Delete(&models.SectionPrice{}).Error
+		if err != nil {
+			return err
+		}
+		return tx.Session(&gorm.Session{FullSaveAssociations: true}).Save(s).Error
+	})
 }
 
 func (r *SectionRepository) Delete(ctx context.Context, id string) error {
