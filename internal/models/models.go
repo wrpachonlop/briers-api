@@ -47,17 +47,24 @@ func (Product) TableName() string { return "products" }
 
 // ─── Section ─────────────────────────────────────────────────────────────────
 
+type SectionPrice struct {
+	ID        uuid.UUID `gorm:"type:uuid;primaryKey;default:uuid_generate_v4()" json:"id"`
+	SectionID uuid.UUID `gorm:"type:uuid;not null"                              json:"section_id"`
+	Grade     int       `gorm:"not null"                                        json:"grade"`
+	Price     float64   `gorm:"type:numeric(10,2);not null"                     json:"price"`
+}
 type Section struct {
-	ID          uuid.UUID `gorm:"type:uuid;primaryKey;default:uuid_generate_v4()" json:"id"`
-	ProductID   uuid.UUID `gorm:"type:uuid;not null"                              json:"product_id"`
-	Name        string    `gorm:"not null"                                        json:"name"`
-	WidthCm     float64   `gorm:"column:width_cm;not null"                        json:"width_cm"`
-	HeightCm    float64   `gorm:"column:height_cm;not null"                       json:"height_cm"`
-	DepthCm     float64   `gorm:"column:depth_cm;not null"                        json:"depth_cm"`
-	FabricYards float64   `gorm:"column:fabric_yards;not null"                    json:"fabric_yards"`
-	ImageURL    string    `gorm:"column:image_url;not null"                       json:"image_url"`
-	SortOrder   int       `gorm:"default:0"                                       json:"sort_order"`
-	CreatedAt   time.Time `gorm:"autoCreateTime"                                  json:"created_at"`
+	ID          uuid.UUID      `gorm:"type:uuid;primaryKey;default:uuid_generate_v4()" json:"id"`
+	ProductID   uuid.UUID      `gorm:"type:uuid;not null"                              json:"product_id"`
+	Name        string         `gorm:"not null"                                        json:"name"`
+	WidthCm     float64        `gorm:"column:width_cm;not null"                        json:"width_cm"`
+	HeightCm    float64        `gorm:"column:height_cm;not null"                       json:"height_cm"`
+	DepthCm     float64        `gorm:"column:depth_cm;not null"                        json:"depth_cm"`
+	FabricYards float64        `gorm:"column:fabric_yards;not null"                    json:"fabric_yards"`
+	ImageURL    string         `gorm:"column:image_url;not null"                       json:"image_url"`
+	SortOrder   int            `gorm:"default:0"                                       json:"sort_order"`
+	CreatedAt   time.Time      `gorm:"autoCreateTime"                                  json:"created_at"`
+	Prices      []SectionPrice `gorm:"foreignKey:SectionID" json:"prices,omitempty"`
 }
 
 func (Section) TableName() string { return "sections" }
@@ -91,22 +98,22 @@ func (ExtraCharge) TableName() string { return "extra_charges" }
 // ─── Quote ───────────────────────────────────────────────────────────────────
 
 type Quote struct {
-	ID                uuid.UUID          `gorm:"type:uuid;primaryKey;default:uuid_generate_v4()" json:"id"`
-	ProductID         uuid.UUID          `gorm:"type:uuid;not null"                              json:"product_id"`
-	CreatedBy         uuid.UUID          `gorm:"type:uuid;not null"                              json:"created_by"`
-	CustomerName      string             `gorm:"type:text"                                       json:"customer_name"`
-	FabricGrade       int                `gorm:"not null"                                        json:"fabric_grade"`
-	SupplierCost      float64            `gorm:"column:supplier_cost;not null"                   json:"supplier_cost"`
-	FinalPrice        float64            `gorm:"column:final_price;not null"                     json:"final_price"`
-	TotalWidthCm      float64            `gorm:"column:total_width_cm;not null"                  json:"total_width_cm"`
-	TotalDepthCm      float64            `gorm:"column:total_depth_cm;not null"                  json:"total_depth_cm"`
-	TotalFabricYards  float64            `gorm:"column:total_fabric_yards;not null"              json:"total_fabric_yards"`
-	Notes             string             `gorm:"type:text"                                       json:"notes"`
-	Status            string             `gorm:"default:draft"                                   json:"status"`
-	CreatedAt         time.Time          `gorm:"autoCreateTime"                                  json:"created_at"`
+	ID               uuid.UUID `gorm:"type:uuid;primaryKey;default:uuid_generate_v4()" json:"id"`
+	ProductID        uuid.UUID `gorm:"type:uuid;not null"                              json:"product_id"`
+	CreatedBy        uuid.UUID `gorm:"type:uuid;not null"                              json:"created_by"`
+	CustomerName     string    `gorm:"type:text"                                       json:"customer_name"`
+	FabricGrade      int       `gorm:"not null"                                        json:"fabric_grade"`
+	SupplierCost     float64   `gorm:"column:supplier_cost;not null"                   json:"supplier_cost"`
+	FinalPrice       float64   `gorm:"column:final_price;not null"                     json:"final_price"`
+	TotalWidthCm     float64   `gorm:"column:total_width_cm;not null"                  json:"total_width_cm"`
+	TotalDepthCm     float64   `gorm:"column:total_depth_cm;not null"                  json:"total_depth_cm"`
+	TotalFabricYards float64   `gorm:"column:total_fabric_yards;not null"              json:"total_fabric_yards"`
+	Notes            string    `gorm:"type:text"                                       json:"notes"`
+	Status           string    `gorm:"default:draft"                                   json:"status"`
+	CreatedAt        time.Time `gorm:"autoCreateTime"                                  json:"created_at"`
 
-	Product      Product            `gorm:"foreignKey:ProductID"  json:"product,omitempty"`
-	QuoteSections []QuoteSection    `gorm:"foreignKey:QuoteID"    json:"sections,omitempty"`
+	Product       Product            `gorm:"foreignKey:ProductID"  json:"product,omitempty"`
+	QuoteSections []QuoteSection     `gorm:"foreignKey:QuoteID"    json:"sections,omitempty"`
 	ExtraCharges  []QuoteExtraCharge `gorm:"foreignKey:QuoteID"   json:"extra_charges,omitempty"`
 }
 
